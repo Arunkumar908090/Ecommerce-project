@@ -21,20 +21,19 @@ pipeline {
         stage('Database Initialization') {
             steps {
                 echo 'Checking and preparing MySQL database environments...'
-                sh "mysql -u arun -p 'Popp77038@arun' -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};'"
-                // Ensures your system pipeline user 'arun' keeps valid schema permissions
-                sh " mysql -u arun -p 'Popp77038@arun' -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;\""
+                // Note: There is NO SPACE between -p and the password 'Arun@1234'
+                sh "mysql -u root -p'Arun@1234' -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};'"
+                sh "mysql -u root -p'Arun@1234' -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;\""
                 
                 echo 'Seeding initial database schemas...'
-                // If a starting database structure exists in the repo, apply it natively
                 script {
                     if (fileExists('basedata.sql')) {
-                        sh "mysql -u arun -p 'Popp77038@arun' ${DB_NAME} < basedata.sql"
-                    } else {
-                        echo 'basedata.sql file not detected, skipping manual sql seed.'
+                        sh "mysql -u root -p'Arun@1234' ${DB_NAME} < basedata.sql"
                     }
                 }
             }
+        }
+
         }
 
         stage('Maven Clean & Compile') {
