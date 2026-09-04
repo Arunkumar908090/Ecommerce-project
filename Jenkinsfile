@@ -86,10 +86,10 @@ pipeline {
         stage('Docker Login & Push') {
             steps {
                 // Ensure you choose "Username and password" or "Secret text" in Jenkins credentials
-                withCredentials([string(credentialsId: 'docker_hub', variable: 'DOCKER_PAT')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker_hub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PAT')]) {
                     sh '''
-                        echo "$DOCKER_PAT" | docker login -u arunkumar9080 --password-stdin
-                        docker push arunkumar9080/ecomjava-project:latest
+                        echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push "$DOCKER_USER"/ecomjava-project:latest
                     '''
                 }
             }
