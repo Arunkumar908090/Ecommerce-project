@@ -80,8 +80,8 @@ pipeline {
 
         stage('Docker') {
             steps {
-                echo '\$DOCKER_CREDENTIALS_PSW | docker login -u arunkumar9080 --password-stdin '
                 sh 'docker build -t arunkumar9080/ecomjava-project:latest .'
+                echo '\$DOCKER_CREDENTIALS_PSW | docker login -u arunkumar9080 --password-stdin '
                 sh 'docker tag arunkumar9080/ecomjava-project:latest'
                 sh 'docker push arunkumar9080/ecomjava-project:latest .'
             }
