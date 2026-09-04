@@ -20,19 +20,26 @@ pipeline {
 
         stage('Database Initialization') {
             steps {
-                echo 'Checking and preparing MySQL database environments...'
-                // Note: There is NO SPACE between -p and the password 'Arun@1234'
-                sh "mysql -u root -p'Arun@1234' -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};'"
+                echo 'Dropping and recreating clean database schemas...'
+                // 1. Drop the database if it exists to clean out previous test runs
+                sh "mysql -u root -p'Arun@1234' -e 'DROP DATABASE IF EXISTS ${DB_NAME};'"
+                
+                // 2. Re-create the clean blank database
+                sh "mysql -u root -p'Arun@1234' -e 'CREATE DATABASE ${DB_NAME};'"
+                
+                // 3. Re-verify permissions for user 'arun'
                 sh "mysql -u root -p'Arun@1234' -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;\""
                 
-                echo 'Seeding initial database schemas...'
+                echo 'Seeding fresh base data configurations...'
                 script {
                     if (fileExists('basedata.sql')) {
+                        // 4. Import seed records securely into the freshly cleaned space
                         sh "mysql -u root -p'Arun@1234' ${DB_NAME} < basedata.sql"
                     }
                 }
             }
         }
+
 
 
         stage('Maven Clean & Compile') {
