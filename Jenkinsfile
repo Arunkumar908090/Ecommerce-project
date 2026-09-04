@@ -67,7 +67,7 @@ pipeline {
             steps {
                 echo 'Packaging application artifact into executable format...'
                 // Bundles classes into target executable packages, skipping tests to save time
-                sh 'mvn package -DskipTests=true'
+                sh 'mvn clean package -DskipTests=true'
             }
             post {
                 success {
