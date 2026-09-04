@@ -1,17 +1,10 @@
 pipeline {
     agent any
 
-    environment {
-        // Define any environment variables here
-        PROJECT_NAME = "E-commerce-project-springBoot"
-        GITHUB_REPO_URL = "https://github.com/jaygajera17/E-commerce-project-springBoot.git"
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the GitHub repository
-                git url: "${GITHUB_REPO_URL}", branch: 'main'
+                Checkout scm
             }
         }
         
@@ -31,13 +24,10 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                // Deploy the application (this can be customized as per your deployment process)
-                // For example, copying the built JAR file to a specific location, or deploying to a cloud service
                 sh '''
                 echo "Deploying application..."
-                # Example command: copying the built JAR file to a remote server
-                # scp target/*.jar user@remote-server:/path/to/deployment/directory
-                '''
+		mkdir Project-deploy
+                cp *.jar /Project-deploy
             }
         }
     }
