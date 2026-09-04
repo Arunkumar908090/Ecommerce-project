@@ -21,15 +21,15 @@ pipeline {
         stage('Database Initialization') {
             steps {
                 echo 'Checking and preparing MySQL database environments...'
-                sh "mysql -u root -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};'"
+                sh "mysql -u arun -p 'Popp77038@arun' -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};'"
                 // Ensures your system pipeline user 'arun' keeps valid schema permissions
-                sh " mysql -u root -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;\""
+                sh " mysql -u arun -p 'Popp77038@arun' -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;\""
                 
                 echo 'Seeding initial database schemas...'
                 // If a starting database structure exists in the repo, apply it natively
                 script {
                     if (fileExists('basedata.sql')) {
-                        sh "mysql -u root ${DB_NAME} < basedata.sql"
+                        sh "mysql -u arun -p 'Popp77038@arun' ${DB_NAME} < basedata.sql"
                     } else {
                         echo 'basedata.sql file not detected, skipping manual sql seed.'
                     }
