@@ -29,8 +29,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying application..."
-		
-		sh 'mkdir Project-deploy'
+		        sh 'mkdir Project-deploy'
                 sh 'cp *.jar /Project-deploy'
             }
         }
