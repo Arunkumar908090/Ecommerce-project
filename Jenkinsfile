@@ -34,7 +34,6 @@ pipeline {
             }
         }
 
-        }
 
         stage('Maven Clean & Compile') {
             steps {
