@@ -17,7 +17,7 @@ spec:
       containers:
       - name: ecomm-app-container
         # Replace 'your-dockerhub-username' with your actual container registry name
-        image: your-dockerhub-username/ecommjava-project:latest
+        image: arunkumar9080/ecomjava-project:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
