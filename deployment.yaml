@@ -35,12 +35,10 @@ kind: Service
 metadata:
   name: ecomm-app-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: ecomm-app
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      # Exposed node routing port for external browser tracking
-      nodePort: 30080

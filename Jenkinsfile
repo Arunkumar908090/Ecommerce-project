@@ -9,6 +9,8 @@ pipeline {
         DB_USER = 'arun'
         DB_NAME = 'ecommjava'
         DOCKER_CREDENTIALS = credentials('docker_hub')
+        AWS_REGION       = 'eu-west-2'
+        EKS_CLUSTER_NAME = 'sample-project-eks'
     }
 
     stages {
@@ -96,12 +98,26 @@ pipeline {
         }
 
 
-        stage('Kubernetes') {
+        stage('Deploy to Amazon EKS') {
             steps {
-                echo 'Deploying to Kubernetes'
-                sh 'kubectl apply -f deployment.yaml'
+                // Fixed AWS login using usernamePassword instead of AWS specific bindings
+                withCredentials([usernamePassword(credentialsId: 'aws_credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh '''
+                        # Export variables so the 'aws' CLI tool can read them natively
+                        export AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY
+                        export AWS_DEFAULT_REGION="$AWS_REGION"
+                        
+                        # Generate your secure cluster config file
+                        aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+                        
+                        # Apply your application manifest to your worker-nodes-arun
+                        kubectl apply -f deployment.yaml
+                    '''
+                }
             }
         }
+    }
     }
 
     post {
