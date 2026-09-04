@@ -8,8 +8,7 @@ pipeline {
     environment {
         DB_USER = 'arun'
         DB_NAME = 'ecommjava'
-        DOCKER_USER = 'arunkumar9080'
-        DOCKER_PASSWORD = 'dckr_pat_R929DqyVlo5pGNv9jbD3UIXEE74'
+         DOCKER_CREDENTIALS = credentials('docker_hub')
     }
 
     stages {
@@ -81,10 +80,10 @@ pipeline {
 
         stage('Docker') {
             steps {
-                echo '"$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin '
-                sh 'docker build -t "$DOCKER_USER"/ecomjava-project:latest .'
-                sh 'docker tag "$DOCKER_USER"/ecomjava-project:latest'
-                sh 'docker push "$DOCKER_USER"/ecomjava-project:latest .'
+                echo '\$DOCKER_CREDENTIALS_PSW | docker login -u arunkumar9080 --password-stdin '
+                sh 'docker build -t arunkumar9080/ecomjava-project:latest .'
+                sh 'docker tag arunkumar9080/ecomjava-project:latest'
+                sh 'docker push arunkumar9080/ecomjava-project:latest .'
             }
         }
 
