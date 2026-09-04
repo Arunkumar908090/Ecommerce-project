@@ -8,6 +8,8 @@ pipeline {
     environment {
         DB_USER = 'arun'
         DB_NAME = 'ecommjava'
+        DOCKER_USER = 'arunkumar9080'
+        DOCKER_PASSWORD = 'dckr_pat_R929DqyVlo5pGNv9jbD3UIXEE74'
     }
 
     stages {
@@ -74,6 +76,22 @@ pipeline {
                     // Archives your compiled war or jar file inside the build history dashboard
                     archiveArtifacts artifacts: '**/target/*.war, **/target/*.jar', fingerprint: true
                 }
+            }
+        }
+
+        stage('Docker') {
+            steps {
+                echo '"$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin '
+                sh 'docker build -t "$DOCKER_USER"/ecomjava-project:latest .'
+                sh 'docker tag "$DOCKER_USER"/ecomjava-project:latest'
+                sh 'docker push "$DOCKER_USER"/ecomjava-project:latest .'
+            }
+        }
+
+        stage('Kubernetes') {
+            steps {
+                echo 'Deploying to Kubernetes'
+                sh 'kubectl apply -f deployment.yaml'
             }
         }
     }
