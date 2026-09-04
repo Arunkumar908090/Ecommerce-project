@@ -81,10 +81,20 @@ pipeline {
         stage('Docker') {
             steps {
                 sh 'docker build -t arunkumar9080/ecomjava-project:latest .'
-                sh '\$DOCKER_CREDENTIALS_PSW | docker login -u arunkumar9080 --password-stdin '
-                sh 'docker push arunkumar9080/ecomjava-project:latest'
             }
         }
+        stage('Docker Login & Push') {
+            steps {
+                // Ensure you choose "Username and password" or "Secret text" in Jenkins credentials
+                withCredentials([string(credentialsId: 'docker_hub', variable: 'DOCKER_PAT')]) {
+                    sh '''
+                        echo "$DOCKER_PAT" | docker login -u arunkumar9080 --password-stdin
+                        docker push arunkumar9080/ecomjava-project:latest
+                    '''
+                }
+            }
+        }
+
 
         stage('Kubernetes') {
             steps {
