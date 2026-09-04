@@ -1,48 +1,84 @@
 pipeline {
     agent any
-   
+
     tools {
-	maven 'Maven'
-	}
+        maven 'Maven' 
+    }
+
+    environment {
+        DB_USER = 'arun'
+        DB_NAME = 'ecommjava'
+    }
 
     stages {
-        
-        stage('Build') {
+        stage('Checkout Code') {
             steps {
-                // Build the project using Maven
-                sh 'mvn clean package'
+                // Pull source tracking configurations directly from the repository hook
+                checkout scm
             }
         }
-        
-        stage('Test') {
+
+        stage('Database Initialization') {
             steps {
-                // Run the tests
+                echo 'Checking and preparing MySQL database environments...'
+                sh "sudo mysql -u root -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};'"
+                // Ensures your system pipeline user 'arun' keeps valid schema permissions
+                sh "sudo mysql -u root -e \"GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost'; FLUSH PRIVILEGES;\""
+                
+                echo 'Seeding initial database schemas...'
+                // If a starting database structure exists in the repo, apply it natively
+                script {
+                    if (fileExists('basedata.sql')) {
+                        sh "sudo mysql -u root ${DB_NAME} < basedata.sql"
+                    } else {
+                        echo 'basedata.sql file not detected, skipping manual sql seed.'
+                    }
+                }
+            }
+        }
+
+        stage('Maven Clean & Compile') {
+            steps {
+                echo 'Cleaning workspace and compiling source classes...'
+                sh 'mvn clean compile'
+            }
+        }
+
+        stage('Execute Unit Tests') {
+            steps {
+                echo 'Running project test automation suite...'
+                // Executes tests using the newly fixed local database parameters
                 sh 'mvn test'
             }
+            post {
+                always {
+                    // Automatically parses target/surefire-reports to render visual test UI inside Jenkins
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
         }
-        
-        stage('Deploy') {
+
+        stage('Package Application') {
             steps {
-                echo "Deploying application..."
-		        sh 'mkdir Project-deploy'
-                sh 'cp *.jar /Project-deploy'
+                echo 'Packaging application artifact into executable format...'
+                // Bundles classes into target executable packages, skipping tests to save time
+                sh 'mvn package -DskipTests=true'
+            }
+            post {
+                success {
+                    // Archives your compiled war or jar file inside the build history dashboard
+                    archiveArtifacts artifacts: '**/target/*.war, **/target/*.jar', fingerprint: true
+                }
             }
         }
     }
-    
+
     post {
-        always {
-            // Actions to perform at the end of the pipeline
-            // For example, cleaning up workspace, sending notifications, etc.
-            cleanWs()
-        }
         success {
-            // Actions to perform if the pipeline succeeds
-            echo 'Pipeline succeeded!'
+            echo '🎉 CI Build Pipeline completed successfully!'
         }
         failure {
-            // Actions to perform if the pipeline fails
-            echo 'Pipeline failed!'
+            echo '❌ Pipeline failed during execution. Review the specific stage breakdown logs above.'
         }
     }
 }
