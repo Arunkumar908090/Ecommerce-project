@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecomm-app-deploy
+  labels:
+    app: ecomm-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecomm-app
+  template:
+    metadata:
+      labels:
+        app: ecomm-app
+    spec:
+      containers:
+      - name: ecomm-app-container
+        # Replace 'your-dockerhub-username' with your actual container registry name
+        image: your-dockerhub-username/ecommjava-project:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        # Passes the target database parameters directly as internal system environment values
+        - name: DB_URL
+          value: "jdbc:mysql://mysql-service:3306/ecommjava?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+        - name: DB_USERNAME
+          value: "arun"
+        - name: DB_PASSWORD
+          value: "Popp77038@arun"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecomm-app-service
+spec:
+  type: NodePort
+  selector:
+    app: ecomm-app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      # Exposed node routing port for external browser tracking
+      nodePort: 30080
