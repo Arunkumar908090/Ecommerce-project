@@ -8,7 +8,7 @@ pipeline {
     environment {
         DB_USER = 'arun'
         DB_NAME = 'ecommjava'
-         DOCKER_CREDENTIALS = credentials('docker_hub')
+        DOCKER_CREDENTIALS = credentials('docker_hub')
     }
 
     stages {
